@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">Clifford-Steerable Convolutional Neural Networks</h1>
 
-[![Paper](https://img.shields.io/badge/arXiv-2209.15616-blue)](https://arxiv.org/abs/2402.14730) 
+[![Paper](https://img.shields.io/badge/arXiv-2402.14730-blue)](https://arxiv.org/abs/2402.14730) 
 
 This repository contains code of the paper [**Clifford-Steerable Convolutional Neural Networks**](https://arxiv.org/abs/2402.14730).
 
