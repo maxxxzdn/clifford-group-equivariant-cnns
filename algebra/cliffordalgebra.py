@@ -47,7 +47,7 @@ class CliffordAlgebra:
             geometric_product_paths (jnp.array): Paths in the geometric product.
             geometric_product_paths_sum (int): Sum of the geometric product paths.
         """
-        self.metric = jnp.array(metric)
+        self.metric = jnp.array(metric, dtype=jnp.int32)
         self.num_bases = len(self.metric)
         self.bbo = ShortLexBasisBladeOrder(self.num_bases)
         self.dim = len(self.metric)
@@ -62,7 +62,7 @@ class CliffordAlgebra:
         self.grade_to_slice = self._grade_to_slice(self.subspaces)
         self.grade_to_index = [jnp.arange(*s.indices(s.stop)) for s in self.grade_to_slice]
 
-        self.bbo_grades = self.bbo.grades.astype(jnp.float32)
+        self.bbo_grades = self.bbo.grades
         self.even_grades = self.bbo_grades % 2 == 0
         self.odd_grades = ~self.even_grades
         self.cayley = cayley
