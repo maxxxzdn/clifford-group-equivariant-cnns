@@ -28,9 +28,9 @@ The repository is incomplete at the moment, below is the roadmap:
 - [x] [implementation](modules) of Clifford-steerable kernels/convolutions (in JAX)
 - [x] [implementation](models) of Clifford-steerable ResNet and basic ResNet (in JAX)
 - [x] [demonstrating example](playbook.ipynb) + test equivariance (escnn + PyTorch required)
-- [] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
-- [] code for the data generation (Maxwell on spacetime)
-- [] replicating experimental results
+- [ ] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
+- [ ] code for the data generation (Maxwell on spacetime)
+- [ ] replicating experimental results
 
 ### Citation
 
