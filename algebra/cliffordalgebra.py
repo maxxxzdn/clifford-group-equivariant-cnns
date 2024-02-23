@@ -6,6 +6,8 @@ import jax.numpy as jnp
 
 from .metric import ShortLexBasisBladeOrder, construct_gmt
 
+DTYPE = jnp.float32
+
 
 def _smooth_abs_sqrt(input, eps=1e-16, min_clamp=0.01):
         """
@@ -47,7 +49,7 @@ class CliffordAlgebra:
             geometric_product_paths (jnp.array): Paths in the geometric product.
             geometric_product_paths_sum (int): Sum of the geometric product paths.
         """
-        self.metric = jnp.array(metric)
+        self.metric = jnp.array(metric, dtype=DTYPE)
         self.num_bases = len(self.metric)
         self.bbo = ShortLexBasisBladeOrder(self.num_bases)
         self.dim = len(self.metric)
@@ -57,7 +59,7 @@ class CliffordAlgebra:
         ).astype(jnp.float32)
 
         self.grades = jnp.unique(self.bbo.grades).tolist()
-        self.subspaces = jnp.array([math.comb(self.dim, g) for g in self.grades])
+        self.subspaces = jnp.array([math.comb(self.dim, g) for g in self.grades], dtype=jnp.int32)
         self.n_subspaces = len(self.grades)
         self.grade_to_slice = self._grade_to_slice(self.subspaces)
         self.grade_to_index = [jnp.arange(*s.indices(s.stop)) for s in self.grade_to_slice]

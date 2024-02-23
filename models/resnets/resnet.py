@@ -53,23 +53,23 @@ class BasicBlock(nn.Module):
             The output of shape (B,T,...,C).
         """
         out = nn.Conv(
-            features=self.planes, 
+            features=self.channels,
             kernel_size=tuple(self.dim * [self.kernel_size]),
             kernel_init=xavier_uniform_init,
         )(x)
         out = nn.LayerNorm()(out) if self.norm else out
         out = gelu(out)
         out = nn.Conv(
-            features=self.planes, 
+            features=self.channels, 
             kernel_size=tuple(self.dim * [self.kernel_size]),
             kernel_init=xavier_uniform_init,
         )(out)     
         out = nn.LayerNorm()(out) if self.norm else out
 
         # shortcut connection
-        if self.in_planes != self.planes:
+        if self.in_channels != self.channels:
             x = nn.Conv(
-                features=self.planes, 
+                features=self.channels, 
                 kernel_size=tuple(self.dim * [1]),
                 kernel_init=xavier_uniform_init,
             )(x)
