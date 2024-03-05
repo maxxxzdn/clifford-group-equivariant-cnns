@@ -9,7 +9,7 @@ from .kernel import CliffordSteerableKernel
 class CliffordSteerableConv(nn.Module):
     """
     Clifford-steerable convolution layer. See Section 3, Appendix A for details. Pseudocode is given in Function 3.
-    
+
     Attributes:
         algebra (CliffordAlgebra): An instance of CliffordAlgebra defining the algebraic structure.
         c_in (int): The number of input channels.
@@ -24,6 +24,7 @@ class CliffordSteerableConv(nn.Module):
         stride (int): The stride of the convolution.
         bias (bool): Whether to use bias in the convolution.
     """
+
     algebra: object
     c_in: int
     c_out: int
@@ -40,10 +41,10 @@ class CliffordSteerableConv(nn.Module):
     def __call__(self, x):
         """
         Applies the convolution operation to a multivector input.
-        
+
         Args:
             x: The input multivector of shape (N, c_in, X_1, ..., X_dim, 2**algebra.dim).
-            
+
         Returns:
             The output multivector of shape (N, c_out, X_1, ..., X_dim, 2**algebra.dim).
         """
@@ -61,28 +62,45 @@ class CliffordSteerableConv(nn.Module):
 
         # Initializing bias
         if self.bias:
-            bias_param = self.param('bias', zeros, (1, self.c_out, *([1] * self.algebra.dim), len(self.bias_dims)))
+            bias_param = self.param(
+                "bias",
+                zeros,
+                (1, self.c_out, *([1] * self.algebra.dim), len(self.bias_dims)),
+            )
             bias = self.algebra.embed(bias_param, self.bias_dims)
 
         # Reshaping multivector input for compatibiltiy with jax.lax.conv:
         #   (N, c_in, X_1, ..., X_dim, 2**algebra.dim) -> (N, c_in * 2**algebra.dim, X_1, ..., X_dim)
         batch_size, input_channels = x.shape[0], self.c_in * self.algebra.n_blades
-        spatial_dims = x.shape[-(self.algebra.dim + 1):-1]
-        inputs = jnp.transpose(x, (0, 1, 4, 2, 3)) if self.algebra.dim == 2 else jnp.transpose(x, (0, 1, 5, 2, 3, 4))
+        spatial_dims = x.shape[-(self.algebra.dim + 1) : -1]
+        inputs = (
+            jnp.transpose(x, (0, 1, 4, 2, 3))
+            if self.algebra.dim == 2
+            else jnp.transpose(x, (0, 1, 5, 2, 3, 4))
+        )
         inputs = inputs.reshape(batch_size, input_channels, *spatial_dims)
 
         # Convolution
         output = jax.lax.conv(
-            inputs, 
-            kernel, 
-            window_strides=(self.stride,) * self.algebra.dim, 
-            padding='SAME' if self.padding else 'VALID'
+            inputs,
+            kernel,
+            window_strides=(self.stride,) * self.algebra.dim,
+            padding="SAME" if self.padding else "VALID",
         )
 
         # Reshaping back to multivector
-        output = output.reshape(batch_size, self.c_out, self.algebra.n_blades, *output.shape[-self.algebra.dim:])
-        output = jnp.transpose(output, (0, 1, 3, 4, 2)) if self.algebra.dim == 2 else jnp.transpose(output, (0, 1, 3, 4, 5, 2))
-        
+        output = output.reshape(
+            batch_size,
+            self.c_out,
+            self.algebra.n_blades,
+            *output.shape[-self.algebra.dim :]
+        )
+        output = (
+            jnp.transpose(output, (0, 1, 3, 4, 2))
+            if self.algebra.dim == 2
+            else jnp.transpose(output, (0, 1, 3, 4, 5, 2))
+        )
+
         if self.bias:
             output = output + bias
 

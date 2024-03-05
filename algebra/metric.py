@@ -1,4 +1,5 @@
 """Adapted to JAX from https://github.com/DavidRuhe/clifford-group-equivariant-neural-networks/blob/master/algebra/metric.py"""
+
 import functools
 import itertools
 import operator

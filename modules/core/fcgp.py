@@ -1,4 +1,5 @@
 """ Adapted to JAX from https://github.com/DavidRuhe/clifford-group-equivariant-neural-networks/blob/master/models/modules/fcgp.py"""
+
 import jax.numpy as jnp
 from flax import linen as nn
 
@@ -24,6 +25,7 @@ class FullyConnectedSteerableGeometricProductLayer(nn.Module):
         include_first_order (bool): Whether to compute the linear term in the output. Default is False.
         normalization (bool): Whether to apply grade-wise normalization to the inputs. Default is True.
     """
+
     algebra: object
     in_features: int
     out_features: int
@@ -45,20 +47,31 @@ class FullyConnectedSteerableGeometricProductLayer(nn.Module):
         """
 
         # Creating a weighted Cayley transform
-        weighted_cayley = WeightedCayley(self.algebra, self.in_features, self.out_features, self.product_paths_sum)()
+        weighted_cayley = WeightedCayley(
+            self.algebra, self.in_features, self.out_features, self.product_paths_sum
+        )()
 
         # Applying a linear transformation to the input
-        input_right = MVLinear(self.algebra, self.in_features, self.in_features, bias_dims=None)(input)
+        input_right = MVLinear(
+            self.algebra, self.in_features, self.in_features, bias_dims=None
+        )(input)
 
         if self.normalization:
             input_right = GradeNorm(self.algebra)(input_right)
-            
+
         # Weighted geometric product
-        out = jnp.einsum("bn...i, mnijk, bn...k -> bm...j", input, weighted_cayley, input_right)
+        out = jnp.einsum(
+            "bn...i, mnijk, bn...k -> bm...j", input, weighted_cayley, input_right
+        )
 
         if self.include_first_order:
             # Adding the linear term
-            out += MVLinear(self.algebra, self.in_features, self.out_features, bias_dims=self.bias_dims)(input)
+            out += MVLinear(
+                self.algebra,
+                self.in_features,
+                self.out_features,
+                bias_dims=self.bias_dims,
+            )(input)
             out = out / jnp.sqrt(2)
 
         return out

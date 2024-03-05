@@ -11,6 +11,7 @@ class MVLayerNorm(nn.Module):
     Attributes:
         algebra (CliffordAlgebra): An instance of CliffordAlgebra defining the algebraic structure.
     """
+
     algebra: object
 
     def __call__(self, input):
@@ -35,6 +36,7 @@ class GradeNorm(nn.Module):
     Attributes:
         algebra (CliffordAlgebra): An instance of CliffordAlgebra defining the algebraic structure.
     """
+
     algebra: object
 
     @nn.compact
@@ -47,9 +49,15 @@ class GradeNorm(nn.Module):
 
         Returns:
             output (jnp.ndarray): normalized multivector of shape (..., 2**algebra.dim).
-        """        
+        """
         norms = jnp.concatenate(self.algebra.norms(input), axis=-1)
-        factor = self.param('factor', zeros, (1, norms.shape[1], self.algebra.n_subspaces)) 
-        factor = jax.lax.broadcast_in_dim(factor, norms.shape, (0, 1, len(norms.shape) - 1))
-        norms = jnp.repeat(jax.nn.sigmoid(factor) * (norms - 1) + 1, self.algebra.subspaces, axis=-1)
+        factor = self.param(
+            "factor", zeros, (1, norms.shape[1], self.algebra.n_subspaces)
+        )
+        factor = jax.lax.broadcast_in_dim(
+            factor, norms.shape, (0, 1, len(norms.shape) - 1)
+        )
+        norms = jnp.repeat(
+            jax.nn.sigmoid(factor) * (norms - 1) + 1, self.algebra.subspaces, axis=-1
+        )
         return input / (norms + 1e-6)

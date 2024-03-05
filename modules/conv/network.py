@@ -20,6 +20,7 @@ class KernelNetwork(nn.Module):
         product_paths_sum (int): The number of non-zero elements in the Cayley table.
             - given by algebra.geometric_product_paths.sum().item()
     """
+
     algebra: object
     c_in: int
     c_out: int
@@ -39,14 +40,32 @@ class KernelNetwork(nn.Module):
         Returns:
             The output multivector of shape (N, c_out * c_in, 2**algebra.dim).
         """
-        x = FullyConnectedSteerableGeometricProductLayer(self.algebra, 1, self.hidden_dim, bias_dims=self.bias_dims, product_paths_sum=self.product_paths_sum)(x)
+        x = FullyConnectedSteerableGeometricProductLayer(
+            self.algebra,
+            1,
+            self.hidden_dim,
+            bias_dims=self.bias_dims,
+            product_paths_sum=self.product_paths_sum,
+        )(x)
         x = MVLayerNorm(self.algebra)(x)
         x = MVGELU()(x)
 
         for _ in range(self.num_layers - 2):
-            x = FullyConnectedSteerableGeometricProductLayer(self.algebra, self.hidden_dim, self.hidden_dim, bias_dims=self.bias_dims, product_paths_sum=self.product_paths_sum)(x)
+            x = FullyConnectedSteerableGeometricProductLayer(
+                self.algebra,
+                self.hidden_dim,
+                self.hidden_dim,
+                bias_dims=self.bias_dims,
+                product_paths_sum=self.product_paths_sum,
+            )(x)
             x = MVLayerNorm(self.algebra)(x)
             x = MVGELU()(x)
-        
-        x = FullyConnectedSteerableGeometricProductLayer(self.algebra, self.hidden_dim, self.c_out * self.c_in, bias_dims=self.bias_dims, product_paths_sum=self.product_paths_sum)(x)
+
+        x = FullyConnectedSteerableGeometricProductLayer(
+            self.algebra,
+            self.hidden_dim,
+            self.c_out * self.c_in,
+            bias_dims=self.bias_dims,
+            product_paths_sum=self.product_paths_sum,
+        )(x)
         return x

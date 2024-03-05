@@ -1,4 +1,5 @@
 """Adapted to JAX from https://github.com/DavidRuhe/clifford-group-equivariant-neural-networks/blob/master/algebra/metric.py"""
+
 import functools
 import math
 import jax
@@ -8,20 +9,20 @@ from .metric import ShortLexBasisBladeOrder, construct_gmt
 
 
 def _smooth_abs_sqrt(input, eps=1e-16, min_clamp=0.01):
-        """
-        Computes a smooth approximation of the absolute value of the square root.
+    """
+    Computes a smooth approximation of the absolute value of the square root.
 
-        Args:
-            input: The input value.
-            eps (float, optional): A small epsilon value for numerical stability.
-            min_clamp (float, optional): small numerical factor to avoid instabilities
-                - inspired by https://github.com/Qualcomm-AI-research/geometric-algebra-transformer/blob/main/gatr/primitives/normalization.py
+    Args:
+        input: The input value.
+        eps (float, optional): A small epsilon value for numerical stability.
+        min_clamp (float, optional): small numerical factor to avoid instabilities
+            - inspired by https://github.com/Qualcomm-AI-research/geometric-algebra-transformer/blob/main/gatr/primitives/normalization.py
 
-        Returns:
-            The smooth absolute square root of the input.
-        """
-        input = jnp.clip(input, min_clamp, None)
-        return (input**2 + eps) ** 0.25
+    Returns:
+        The smooth absolute square root of the input.
+    """
+    input = jnp.clip(input, min_clamp, None)
+    return (input**2 + eps) ** 0.25
 
 
 class CliffordAlgebra:
@@ -60,7 +61,9 @@ class CliffordAlgebra:
         self.subspaces = jnp.array([math.comb(self.dim, g) for g in self.grades])
         self.n_subspaces = len(self.grades)
         self.grade_to_slice = self._grade_to_slice(self.subspaces)
-        self.grade_to_index = [jnp.arange(*s.indices(s.stop)) for s in self.grade_to_slice]
+        self.grade_to_index = [
+            jnp.arange(*s.indices(s.stop)) for s in self.grade_to_slice
+        ]
 
         self.bbo_grades = self.bbo.grades
         self.even_grades = self.bbo_grades % 2 == 0
@@ -68,17 +71,19 @@ class CliffordAlgebra:
         self.cayley = cayley
         self.geometric_product_paths = self._calculate_geometric_product_paths()
         self.geometric_product_paths_sum = self.geometric_product_paths.sum().item()
-        
+
     @property
     def _beta_signs(self):
         """
         Computes the signs for the main anti-involution.
-        
+
         Returns:
             Signs for the main anti-involution.
         """
-        if not hasattr(self, '__beta_signs_cache'):
-            self.__beta_signs_cache = jnp.power(-1, self.bbo_grades * (self.bbo_grades - 1) // 2)
+        if not hasattr(self, "__beta_signs_cache"):
+            self.__beta_signs_cache = jnp.power(
+                -1, self.bbo_grades * (self.bbo_grades - 1) // 2
+            )
         return self.__beta_signs_cache
 
     def _grade_to_slice(self, subspaces):
@@ -119,7 +124,7 @@ class CliffordAlgebra:
                     gp_paths = gp_paths.at[i, j, k].set((m != 0).any())
 
         return gp_paths
-    
+
     @functools.partial(jax.jit, static_argnums=(0,))
     def geometric_product(self, a, b, blades=None):
         """
@@ -139,7 +144,7 @@ class CliffordAlgebra:
             cayley = cayley[blades_l[:, None, None], blades_o[:, None], blades_r]
 
         return jnp.einsum("...i,ijk,...k->...j", a, cayley, b)
-    
+
     def exponential(self, mv, truncate=8):
         """
         Computes the exponential of a multivector.
@@ -158,7 +163,7 @@ class CliffordAlgebra:
             x = self.geometric_product(x, mv)
             result += x / math.factorial(i)
         return result
-    
+
     def sandwich(self, u, v, w):
         """
         Sandwich product of three multivectors.
@@ -170,7 +175,7 @@ class CliffordAlgebra:
             (u * v) * w
         """
         return self.geometric_product(self.geometric_product(u, v), w)
-    
+
     def embed(self, array, array_index):
         """
         Embeds an array into a multivector at a specified index.
@@ -183,9 +188,13 @@ class CliffordAlgebra:
             A multivector with the given array embedded at the specified index.
         """
         indices = (..., array_index)
-        mv = jnp.zeros((*array.shape[:-1], 2**self.dim), dtype=array.dtype).at[indices].set(array)
+        mv = (
+            jnp.zeros((*array.shape[:-1], 2**self.dim), dtype=array.dtype)
+            .at[indices]
+            .set(array)
+        )
         return mv
-    
+
     def embed_grade(self, array, grade):
         """
         Embeds an array into a multivector at a specified grade.
@@ -197,8 +206,12 @@ class CliffordAlgebra:
         Returns:
             A multivector with the given array embedded at the specified grade.
         """
-        return jnp.zeros((*array.shape[:-1], 2**self.dim)).at[..., self.grade_to_index[grade]].set(array)
-    
+        return (
+            jnp.zeros((*array.shape[:-1], 2**self.dim))
+            .at[..., self.grade_to_index[grade]]
+            .set(array)
+        )
+
     def get_grade(self, mv, grade):
         """
         Extracts the components of a multivector that belong to a specified grade.
@@ -212,7 +225,7 @@ class CliffordAlgebra:
         """
         s = self.grade_to_slice[grade]
         return mv[..., s]
-    
+
     def random_grade(self, key, grade: int, n=None):
         """
         Generates a random multivector where a specific grade is non-zero.
@@ -232,7 +245,7 @@ class CliffordAlgebra:
         components = jax.random.normal(key, (n, grade_indices.sum()))
         mv = mv.at[..., grade_indices].set(components)
         return mv
-    
+
     def beta(self, mv, blades=None):
         """
         Computes the main anti-involution (see Eq. 2 of https://arxiv.org/abs/2305.11141).
@@ -295,7 +308,7 @@ class CliffordAlgebra:
         if blades is not None:
             blades = (blades, blades)
         return self.b(mv, mv, blades=blades)
-    
+
     def qs(self, mv, grades=None):
         """
         Computes the quadratic forms of a multivector for specific grades.
@@ -313,7 +326,7 @@ class CliffordAlgebra:
             self.q(self.get_grade(mv, grade), blades=self.grade_to_index[grade])
             for grade in grades
         ]
-        
+
     def eta(self, w):
         """
         Coboundary of Clifford main involution (see Eq. 361 of https://arxiv.org/abs/2305.11141)
@@ -325,7 +338,7 @@ class CliffordAlgebra:
             -1 if the multivector is odd, 1 if it is even.
         """
         return (-1) ** self.parity(w)
-    
+
     def alpha_w(self, w, mv):
         """
         Clifford main involution (see Eq. 369 of https://arxiv.org/abs/2305.11141)
@@ -351,7 +364,7 @@ class CliffordAlgebra:
             The norm of the multivector.
         """
         return _smooth_abs_sqrt(self.q(mv, blades=blades))
-    
+
     def norms(self, mv, grades=None):
         """
         Computes the norms of a multivector for specific grades.
@@ -369,7 +382,7 @@ class CliffordAlgebra:
             self.norm(self.get_grade(mv, grade), blades=self.grade_to_index[grade])
             for grade in grades
         ]
-            
+
     def parity(self, mv):
         """
         Determines the parity (even or odd) of a multivector.
@@ -389,7 +402,7 @@ class CliffordAlgebra:
             return is_odd
         else:
             raise ValueError("This is not a homogeneous element.")
-    
+
     def inverse(self, mv, blades=None):
         """
         Computes the inverse of a multivector.
@@ -403,7 +416,7 @@ class CliffordAlgebra:
         """
         mv_ = self.beta(mv, blades=blades)
         return mv_ / self.q(mv)
-    
+
     def _rho_(self, w, mv):
         """
         Applies the action w to a multivector.
