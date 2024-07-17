@@ -36,17 +36,16 @@ class CliffordSteerableConv(nn.Module):
     padding: bool = True
     stride: int = 1
     bias: bool = True
+    padding_mode: str = "SAME"
 
     @nn.compact
     def __call__(self, x):
         """
         Applies the convolution operation to a multivector input.
-
         Args:
-            x: The input multivector of shape (N, c_in, X_1, ..., X_dim, 2**algebra.dim).
-
+        x: The input multivector of shape (N, c_in, X_1, ..., X_dim, 2**algebra.dim).
         Returns:
-            The output multivector of shape (N, c_out, X_1, ..., X_dim, 2**algebra.dim).
+        The output multivector of shape (N, c_out, X_1, ..., X_dim, 2**algebra.dim).
         """
         # Initializing kernel
         kernel = CliffordSteerableKernel(
@@ -70,7 +69,7 @@ class CliffordSteerableConv(nn.Module):
             bias = self.algebra.embed(bias_param, self.bias_dims)
 
         # Reshaping multivector input for compatibiltiy with jax.lax.conv:
-        #   (N, c_in, X_1, ..., X_dim, 2**algebra.dim) -> (N, c_in * 2**algebra.dim, X_1, ..., X_dim)
+        # (N, c_in, X_1, ..., X_dim, 2**algebra.dim) -> (N, c_in * 2**algebra.dim, X_1, ..., X_dim)
         batch_size, input_channels = x.shape[0], self.c_in * self.algebra.n_blades
         spatial_dims = x.shape[-(self.algebra.dim + 1) : -1]
         inputs = (
@@ -80,12 +79,26 @@ class CliffordSteerableConv(nn.Module):
         )
         inputs = inputs.reshape(batch_size, input_channels, *spatial_dims)
 
+        # Determine padding
+        if self.padding_mode.upper() == "SAME":
+            padding = "SAME"
+        elif self.padding:
+            padding = "VALID"
+            padding_size = [(self.kernel_size - 1) // 2] * self.algebra.dim
+            inputs = jnp.pad(
+                inputs,
+                [(0, 0), (0, 0)] + [(p, p) for p in padding_size],
+                mode=self.padding_mode,
+            )
+        else:
+            padding = "VALID"
+
         # Convolution
         output = jax.lax.conv(
             inputs,
             kernel,
             window_strides=(self.stride,) * self.algebra.dim,
-            padding="SAME" if self.padding else "VALID",
+            padding=padding,
         )
 
         # Reshaping back to multivector

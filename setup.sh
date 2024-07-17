@@ -1,16 +1,27 @@
 #!/bin/bash
-conda create --name cscnns python=3.11 -y
+conda create --name cscnns python=3.10 -y
 source activate cscnns
 
-pip install matplotlib
+# PyTorch + escnnZz
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+pip install escnn -q --no-cache
+
+# Data generation [Maxwell 2d]
+pip install pycharge
 
 # JAX
 pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 pip install flax
 
-# PyTorch (CPU)
-conda install pytorch torchvision torchaudio cpuonly -c pytorch -y
-pip install git+https://github.com/AMLab-Amsterdam/lie_learn
-pip install escnn
+# Other packages
+pip install matplotlib
+pip install wandb
+
+# [WARNING] GNU Parallel might get handy for data generation. Uncomment the following lines to install it.
+# sudo apt-get install parallel
 
 echo "Environment 'cscnns' created and packages installed."
+
+
+
+

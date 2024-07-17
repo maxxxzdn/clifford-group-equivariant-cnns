@@ -2,7 +2,7 @@ from flax import linen as nn
 
 from ..core.fcgp import FullyConnectedSteerableGeometricProductLayer
 from ..core.mvgelu import MVGELU
-from ..core.norm import MVLayerNorm
+from ..core.norm import GradeNorm
 
 
 class KernelNetwork(nn.Module):
@@ -47,7 +47,7 @@ class KernelNetwork(nn.Module):
             bias_dims=self.bias_dims,
             product_paths_sum=self.product_paths_sum,
         )(x)
-        x = MVLayerNorm(self.algebra)(x)
+        x = GradeNorm(self.algebra)(x)
         x = MVGELU()(x)
 
         for _ in range(self.num_layers - 2):
@@ -58,7 +58,7 @@ class KernelNetwork(nn.Module):
                 bias_dims=self.bias_dims,
                 product_paths_sum=self.product_paths_sum,
             )(x)
-            x = MVLayerNorm(self.algebra)(x)
+            x = GradeNorm(self.algebra)(x)
             x = MVGELU()(x)
 
         x = FullyConnectedSteerableGeometricProductLayer(

@@ -35,6 +35,7 @@ class CSBasicBlock(nn.Module):
     bias_dims: tuple
     stride: int = 1
     expansion: int = 1
+    padding_mode: str = "SAME"
 
     @nn.compact
     def __call__(self, x):
@@ -48,49 +49,45 @@ class CSBasicBlock(nn.Module):
         Returns:
             The output multivector of shape (N, channels, X_1, ..., X_dim, 2**algebra.dim).
         """
+        conv_config = {
+            "algebra": self.algebra,
+            "num_layers": self.num_layers,
+            "hidden_dim": self.hidden_dim,
+            "kernel_size": self.kernel_size,
+            "bias_dims": self.bias_dims,
+            "product_paths_sum": self.product_paths_sum,
+            "padding_mode": self.padding_mode,
+        }
+
         out = CliffordSteerableConv(
-            algebra=self.algebra,
             c_in=self.in_channels,
             c_out=self.channels,
-            kernel_size=self.kernel_size,
             stride=self.stride,
-            num_layers=self.num_layers,
-            hidden_dim=self.hidden_dim,
             bias=True,
-            bias_dims=self.bias_dims,
-            product_paths_sum=self.product_paths_sum,
+            **conv_config
         )(x)
         out = MVLayerNorm(self.algebra)(out) if self.norm else out
         out = MVGELU()(out)
+
         out = CliffordSteerableConv(
-            algebra=self.algebra,
             c_in=self.channels,
             c_out=self.channels,
-            kernel_size=self.kernel_size,
             stride=self.stride,
-            num_layers=self.num_layers,
-            hidden_dim=self.hidden_dim,
             padding=True,
             bias=True,
-            bias_dims=self.bias_dims,
-            product_paths_sum=self.product_paths_sum,
+            **conv_config
         )(out)
         out = MVLayerNorm(self.algebra)(out) if self.norm else out
 
         # shortcut connection
         if self.stride != 1 or self.in_channels != self.expansion * self.channels:
             x = CliffordSteerableConv(
-                algebra=self.algebra,
                 c_in=self.in_channels,
                 c_out=self.expansion * self.channels,
-                kernel_size=self.kernel_size,
                 stride=self.stride,
-                num_layers=self.num_layers,
-                hidden_dim=self.hidden_dim,
                 padding=True,
                 bias=True,
-                bias_dims=self.bias_dims,
-                product_paths_sum=self.product_paths_sum,
+                **conv_config
             )(x)
             x = MVLayerNorm(self.algebra)(x) if self.norm else x
 
@@ -133,6 +130,7 @@ class CSResNet(nn.Module):
     blocks: tuple = (2, 2, 2, 2)
     norm: bool = True
     make_channels: bool = False
+    padding_mode: str = "SAME"
 
     def setup(self):
         self.conv_config = {
@@ -142,6 +140,7 @@ class CSResNet(nn.Module):
             "num_layers": self.kernel_num_layers,
             "hidden_dim": self.kernel_hidden_dim,
             "product_paths_sum": self.product_paths_sum,
+            "padding_mode": self.padding_mode,
         }
 
         self.block_config = {
@@ -154,6 +153,7 @@ class CSResNet(nn.Module):
             "hidden_dim": self.kernel_hidden_dim,
             "kernel_size": self.kernel_size,
             "bias_dims": self.bias_dims,
+            "padding_mode": self.padding_mode,
         }
 
     @nn.compact

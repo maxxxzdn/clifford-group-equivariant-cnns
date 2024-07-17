@@ -1,4 +1,3 @@
-import jax
 import jax.numpy as jnp
 from flax import linen as nn
 from jax.nn.initializers import ones
@@ -36,16 +35,7 @@ def get_init_factor(algebra, kernel_size):
     Returns:
         float: The initial factor for the kernel.
     """
-    factor = 1 / kernel_size
-    condition = jnp.any(algebra.metric == -1)  # if there is a time-like dimension
-    factor = jnp.where(condition, factor / kernel_size, factor)
-
-    if kernel_size > 1:
-        factor = 5 * factor
-    else:
-        factor = 2 * factor
-
-    return factor
+    return 20 / kernel_size ** (algebra.dim - 1)
 
 
 class CliffordSteerableKernel(nn.Module):

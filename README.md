@@ -31,21 +31,19 @@ The repository is incomplete at the moment, below is the roadmap:
 - [x] [implementation](modules) of Clifford-steerable kernels/convolutions (in JAX)
 - [x] [implementation](models) of Clifford-steerable ResNet and basic ResNet (in JAX)
 - [x] [demonstrating example](playbook.ipynb) + test equivariance (escnn + PyTorch required)
+- [x] code for the data generation (Maxwell on spacetime)
+- [x] replicating experimental results
 - [ ] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
-- [ ] code for the data generation (Maxwell on spacetime)
-- [ ] replicating experimental results
 
 ## Citation
 
 If you find this repository useful in your research, please consider citing us:
 
-```bibtex
-@misc{zhdanov2024cliffordsteerable,
-      title={Clifford-Steerable Convolutional Neural Networks}, 
-      author={Maksim Zhdanov and David Ruhe and Maurice Weiler and Ana Lucic and Johannes Brandstetter and Patrick Forré},
-      year={2024},
-      eprint={2402.14730},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+```
+@inproceedings{Zhdanov2024CliffordSteerableCN,
+    title = {Clifford-Steerable Convolutional Neural Networks},
+    author = {Maksim Zhdanov and David Ruhe and Maurice Weiler and Ana Lucic and Johannes Brandstetter and Patrick Forr'e},
+    booktitle = {International {Conference} on {Machine} {Learning} ({ICML})},
+    year = {2024},
 }
 ```
