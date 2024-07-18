@@ -133,7 +133,7 @@ The repository is incomplete at the moment, below is the roadmap:
   - [x] Navier-Stokes (PDEarena)
   - [x] Maxwell 3D (PDEarena)
   - [x] Maxwell 2D+1 (PyCharge)
-- [ ] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
+- [x] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
 
 ## Citation
 
