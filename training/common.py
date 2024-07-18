@@ -7,7 +7,11 @@ import flax
 import optax
 from flax.training import train_state
 
-from .losses import compute_losses_ns, compute_losses_maxwell3d, compute_losses_maxwell2d
+from .losses import (
+    compute_losses_ns,
+    compute_losses_maxwell3d,
+    compute_losses_maxwell2d,
+)
 
 
 def init_train_state(
