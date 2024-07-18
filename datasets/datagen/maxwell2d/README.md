@@ -1,7 +1,9 @@
 # Maxwell's equation on spacetime $\mathbb{R}^{1,2}$
 We simulate data for Maxwell’s equations on spacetime $\mathbb{R}^{1,2}$ using [PyCharge](https://pycharge.readthedocs.io/en/latest/). A typical simulation looks as follows:
 
-![alt text](../../../figures/pycharge_maxwell2d.gif "PyCharge")
+<p align="center">
+  <img src="../../../figures/pycharge_maxwell2d.gif" alt="PyCharge">
+</p>
 
 To generate the data, run:
 ```sh

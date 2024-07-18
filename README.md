@@ -19,11 +19,69 @@ We present Clifford-Steerable Convolutional Neural Networks (CS-CNNs), a novel c
 
 ## Requirements
 
-To install all the necessary requirements, including JAX and PyTorch (CPU), run:
+To install all the necessary requirements, including JAX and PyTorch, run:
 ```sh
-chmod +x setup.sh
-./setup.sh
+bash setup.sh
 ```
+
+## Example code
+Below is a simple example of initializing and applying a CS-ResNet to a random multivector input:
+```python
+import jax
+
+from algebra.cliffordalgebra import CliffordAlgebra
+from models.resnets import CSResNet
+
+algebra = CliffordAlgebra((1, 1))
+
+config = dict(
+    algebra=algebra,
+    time_history=4,
+    time_future=1,
+    hidden_channels=16,
+    kernel_num_layers=4,
+    kernel_hidden_dim=12,
+    kernel_size=7,
+    bias_dims=(0,),
+    product_paths_sum=algebra.geometric_product_paths.sum().item(),
+    make_channels=1,
+    blocks=(2, 2, 2, 2),
+    norm=True,
+    padding_mode="symmetric",
+)
+
+csresnet = CSResNet(**config)
+
+# random input for initialization
+rng = jax.random.PRNGKey(42)
+mv_field = jax.random.normal(rng, (16, config.time_history, 64, 64, algebra.n_blades))
+params = csresnet.init(rng, mv_field)
+
+# compute the output
+out = csresnet.apply(params, mv_field)
+```
+Note that the field must come in shape `(Batch, Channels, ..., Blades)`, where `...` indicates grid dimensions (depth, width, etc.).
+
+## Experiments
+
+### Maxwell 2D+1 (spacetime)
+The instructions for the data generation can be found in [datasets/datagen/maxwell2d/README.md](datasets/datagen/maxwell2d/README.md). 
+```bash
+cd datasets/datagen/maxwell2d
+bash generate.sh --num_points 512 --partition train
+```
+
+To reproduce the experiment, run:
+
+#### CS-ResNet
+```bash
+python experiment.py --model gcresnet --experiment maxwell2d --metric -1 1 1 --time_history 32 --time_future 32 --num_data 64 --batch_size 16 --blocks 2 2 2 2 --norm 0 --kernel_size 7 --hidden_channels 12
+```
+#### ResNet
+```bash
+python experiment.py --model resnet --experiment maxwell2d --metric -1 1 1 --time_history 32 --time_future 32 --num_data 64 --batch_size 16 --blocks 2 2 2 2 --norm 0 --kernel_size 7 --hidden_channels 13
+```
+
 
 ## TODO list
 The repository is incomplete at the moment, below is the roadmap:
@@ -32,7 +90,10 @@ The repository is incomplete at the moment, below is the roadmap:
 - [x] [implementation](models) of Clifford-steerable ResNet and basic ResNet (in JAX)
 - [x] [demonstrating example](playbook.ipynb) + test equivariance (escnn + PyTorch required)
 - [x] code for the data generation (Maxwell on spacetime)
-- [x] replicating experimental results
+- [ ] replicating experimental results
+  - [ ] Navier-Stokes (PDEarena)
+  - [ ] Maxwell 3D (PDEarena)
+  - [x] Maxwell 2D+1 (PyCharge)
 - [ ] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
 
 ## Citation
