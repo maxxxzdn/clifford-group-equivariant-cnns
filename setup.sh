@@ -16,6 +16,8 @@ pip install flax
 # Other packages
 pip install matplotlib
 pip install wandb
+pip install cliffordlayers
+pip install neuraloperator
 
 # [WARNING] GNU Parallel might get handy for data generation. Uncomment the following lines to install it.
 # sudo apt-get install parallel
