@@ -1,4 +1,4 @@
-# Maxwell (PDEarena)$
+# Maxwell (PDEarena)
 We download and preprocess files by hand surpassing hugging face, which requires git lfs. This gives a bit more leverage on which files to download and also is handy to have if your server doesn't have git lfs installed.
 
 To download the data, run:
