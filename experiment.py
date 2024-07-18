@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--debug", type=int, default=0)
 parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--metric", nargs="+", type=int, default=None)
-parser.add_argument("--experiment", type=str, default="ns")
+parser.add_argument("--experiment", type=str, choices=["ns", "maxwell3d", "maxwell2d"])
 parser.add_argument("--metric_accumulation_steps", type=int, default=1)
 parser.add_argument("--checkpoint", type=int, default=0)
 parser.add_argument("--test", type=int, default=0)
@@ -29,10 +29,10 @@ parser.add_argument("--wandb_id", type=str, default=None)
 model_args = parser.add_argument_group("Model Arguments")
 model_args.add_argument("--model", type=str, choices=["resnet", "cresnet", "gcresnet"])
 model_args.add_argument("--hidden_channels", type=int)
-model_args.add_argument("--kernel_size", type=int)
+model_args.add_argument("--kernel_size", type=int, default=7)
 model_args.add_argument("--bias_dims", nargs="+", type=int, default=(0,))
 model_args.add_argument("--norm", type=int, default=1)
-model_args.add_argument("--blocks", nargs="+", type=int)
+model_args.add_argument("--blocks", nargs="+", type=int, default=(2, 2, 2, 2))
 
 train_args = parser.add_argument_group("Training Arguments")
 train_args.add_argument("--batch_size", type=int, default=8)
@@ -65,7 +65,7 @@ def main(args):
         wandb.config.update(args, allow_val_change=True)
 
     dim = 2 if args.experiment == "ns" else 3
-    n_spatial = {"ns": 64, "maxwell": 32, "maxwell2d": 32}[args.experiment]
+    n_spatial = {"ns": 64, "maxwell3d": 32, "maxwell2d": 32}[args.experiment]
     make_channels = True if args.experiment == "maxwell2d" else False
 
     if "gc" not in args.model:
@@ -84,7 +84,7 @@ def main(args):
         else:
             raise ValueError("Model not supported.")
 
-        n_components = 6 if args.experiment == "maxwell" else 3
+        n_components = 6 if args.experiment == "maxwell3d" else 3
         if args.experiment == "maxwell2d":
             shape_init = (
                 args.batch_size,
@@ -177,10 +177,10 @@ def main(args):
         train_path = "datasets/data/ns/train/"
         valid_path = "datasets/data/ns/valid/"
         test_path = "datasets/data/ns/test/"
-    elif args.experiment == "maxwell":
-        train_path = "datasets/data/maxwell/train/"
-        valid_path = "datasets/data/maxwell/valid/"
-        test_path = "datasets/data/maxwell/test/"
+    elif args.experiment == "maxwell3d":
+        train_path = "datasets/data/maxwell3d/train/"
+        valid_path = "datasets/data/maxwell3d/valid/"
+        test_path = "datasets/data/maxwell3d/test/"
     elif args.experiment == "maxwell2d":
         train_path = "datasets/data/maxwell2d/train/"
         valid_path = "datasets/data/maxwell2d/valid/"

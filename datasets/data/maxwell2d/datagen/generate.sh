@@ -11,7 +11,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Directory to save the data
-DIR_PATH="../../data/maxwell2d/$partition"
+DIR_PATH="../$partition"
 mkdir -p "$DIR_PATH"
 
 # Function to check if a command exists (will check if GNU Parallel is installed)

@@ -20,7 +20,7 @@ def compute_losses_ns(inputs, targets):
 
 
 @jax.jit
-def compute_losses_maxwell(inputs, targets):
+def compute_losses_maxwell3d(inputs, targets):
     if inputs.shape[-1] == 6:
         # add scalar and pseudo scalar components to non-Clifford features for consistency
         inputs = jnp.pad(inputs, ((0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (1, 1)))

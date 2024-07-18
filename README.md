@@ -64,8 +64,48 @@ Note that the field must come in shape `(Batch, Channels, ..., Blades)`, where `
 
 ## Experiments
 
+### Navier-Stokes (PDEarena)
+The instructions for the data generation can be found in [datasets/data/ns/README.md](datasets/data/ns/README.md). 
+```bash
+cd datasets/data/ns
+bash download.sh
+python preprocess.py
+```
+
+To reproduce the experiment, run:
+
+#### CS-ResNet
+```bash
+python experiment.py --experiment ns --model gcresnet --metric 1 1 --time_history 4 --time_future 1 --num_data 64 --batch_size 8 --norm 1 --hidden_channels 48
+```
+
+#### ResNet
+```bash
+python experiment.py --experiment ns --model resnet --metric 1 1 --time_history 4 --time_future 1 --num_data 64 --batch_size 8 --norm 1 --hidden_channels 96
+```
+
+### Maxwell 3D (PDEarena)
+The instructions for the data generation can be found in [datasets/data/maxwell3d/README.md](datasets/data/maxwell3d/README.md). 
+```bash
+cd datasets/data/maxwell3d
+bash download.sh
+python preprocess.py
+```
+
+To reproduce the experiment, run:
+
+#### CS-ResNet
+```bash
+python experiment.py --experiment maxwell3d --model gcresnet --metric 1 1 1 --time_history 4 --time_future 1 --num_data 64 --batch_size 2 --norm 1 --hidden_channels 12 --scheduler cosine
+```
+
+#### ResNet
+```bash
+python experiment.py --experiment maxwell3d --model resnet --metric 1 1 1 --time_history 4 --time_future 1 --num_data 64 --batch_size 2 --norm 1 --hidden_channels 12 --scheduler cosine
+```
+
 ### Maxwell 2D+1 (spacetime)
-The instructions for the data generation can be found in [datasets/datagen/maxwell2d/README.md](datasets/datagen/maxwell2d/README.md). 
+The instructions for the data generation can be found in [datasets/data/maxwell2d/datagen/README.md](datasets/data/maxwell2d/datagen/README.md). 
 ```bash
 cd datasets/datagen/maxwell2d
 bash generate.sh --num_points 512 --partition train
@@ -75,13 +115,12 @@ To reproduce the experiment, run:
 
 #### CS-ResNet
 ```bash
-python experiment.py --model gcresnet --experiment maxwell2d --metric -1 1 1 --time_history 32 --time_future 32 --num_data 64 --batch_size 16 --blocks 2 2 2 2 --norm 0 --kernel_size 7 --hidden_channels 12
+python experiment.py --experiment maxwell2d --model gcresnet --metric -1 1 1 --time_history 32 --time_future 32 --num_data 512 --batch_size 16 --norm 0 --hidden_channels 12
 ```
 #### ResNet
 ```bash
-python experiment.py --model resnet --experiment maxwell2d --metric -1 1 1 --time_history 32 --time_future 32 --num_data 64 --batch_size 16 --blocks 2 2 2 2 --norm 0 --kernel_size 7 --hidden_channels 13
+python experiment.py --experiment maxwell2d --model resnet --metric -1 1 1 --time_history 32 --time_future 32 --num_data 512 --batch_size 16 --norm 0 --hidden_channels 13
 ```
-
 
 ## TODO list
 The repository is incomplete at the moment, below is the roadmap:
@@ -89,10 +128,10 @@ The repository is incomplete at the moment, below is the roadmap:
 - [x] [implementation](modules) of Clifford-steerable kernels/convolutions (in JAX)
 - [x] [implementation](models) of Clifford-steerable ResNet and basic ResNet (in JAX)
 - [x] [demonstrating example](playbook.ipynb) + test equivariance (escnn + PyTorch required)
-- [x] code for the data generation (Maxwell on spacetime)
-- [ ] replicating experimental results
-  - [ ] Navier-Stokes (PDEarena)
-  - [ ] Maxwell 3D (PDEarena)
+- [x] code for the [data generation](datasets/datagen/maxwell2d/README.md) (Maxwell on spacetime)
+- [x] replicating experimental results
+  - [x] Navier-Stokes (PDEarena)
+  - [x] Maxwell 3D (PDEarena)
   - [x] Maxwell 2D+1 (PyCharge)
 - [ ] implementation of Clifford ResNet and Steerable ResNet (in PyTorch)
 
