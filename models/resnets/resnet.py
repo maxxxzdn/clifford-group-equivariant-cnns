@@ -90,6 +90,7 @@ class ResNet(nn.Module):
         kernel_size (int): The size of the kernel.
         blocks (tuple): The number of blocks in each layer.
         norm (bool): Whether to use normalization in the block.
+        make_channels (bool): create channel dimension (when time is part of the grid).
     """
 
     time_history: int
@@ -98,9 +99,11 @@ class ResNet(nn.Module):
     kernel_size: int
     blocks: tuple = (2, 2, 2, 2)
     norm: bool = True
+    make_channels: bool = False
 
     @nn.compact
     def __call__(self, x):
+        out_dim = self.time_future if not self.make_channels else 1
         dim = len(x.shape) - 3  # input shape is (B,T,X_1, ..., X_dim,C)
         orig_shape = x.shape
 
@@ -141,12 +144,13 @@ class ResNet(nn.Module):
         )(x)
         x = gelu(x)
         x = nn.Conv(
-            features=self.time_future * orig_shape[-1],
+            features=out_dim*orig_shape[-1],
             kernel_size=tuple(dim * [1]),
             kernel_init=xavier_uniform_init,
         )(x)
 
         # reshape back to original shape
-        x = x.reshape(*x.shape[:-1], self.time_future, orig_shape[-1])  # (B,...,T,C)
+        x = x.reshape(*x.shape[:-1], out_dim, orig_shape[-1])  # (B,...,T,C)
         x = x.transpose(0, -2, *range(1, len(x.shape) - 2), -1)  # (B,T,...,C)
+
         return x
