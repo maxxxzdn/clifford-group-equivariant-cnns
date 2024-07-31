@@ -2,7 +2,7 @@
 conda create --name cscnns python=3.10 -y
 source activate cscnns
 
-# PyTorch + escnnZz
+# PyTorch + escnn
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 pip install escnn -q --no-cache
 
