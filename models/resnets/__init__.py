@@ -1,6 +1,10 @@
 from .resnet import ResNet
 from .csresnet import CSResNet
-from .sresnet import SteerableResNet
+
+try:
+    from .sresnet import SteerableResNet
+except ImportError:
+    print("escnn not installed. Install it with 'pip install escnn'.")
 
 try:
     from .cresnet import CliffordResNet
