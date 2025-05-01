@@ -142,7 +142,7 @@ If you find this repository useful in your research, please consider citing us:
 ```
 @inproceedings{Zhdanov2024CliffordSteerableCN,
     title = {Clifford-Steerable Convolutional Neural Networks},
-    author = {Maksim Zhdanov and David Ruhe and Maurice Weiler and Ana Lucic and Johannes Brandstetter and Patrick Forr'e},
+    author = {Maksim Zhdanov and David Ruhe and Maurice Weiler and Ana Lucic and Johannes Brandstetter and Patrick Forr{\'e}},
     booktitle = {International {Conference} on {Machine} {Learning} ({ICML})},
     year = {2024},
 }
