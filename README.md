@@ -6,7 +6,7 @@
 
 <h3>Clifford-Steerable Convolutional Neural Networks (ICML 2024)</h3>
 
-<b> Authors: </b>Maksim Zhdanov, David Ruhe, Maurice Weiler, and Ana Lucic, Johannes Brandstetter, Patrick Forré 
+<b> Authors: </b><a href="https://maxxxzdn.github.io/">Maksim Zhdanov</a>, David Ruhe, Maurice Weiler, and Ana Lucic, Johannes Brandstetter, Patrick Forré 
 
 [ArXiv](https://arxiv.org/abs/2402.14730) | [Blog](https://maxxxzdn.github.io/blog/cscnns.html) | [Playbook](playbook.ipynb) | [Google Colab](https://colab.research.google.com/drive/1M196l6XWi56WJRCVJjd-VCWqzrtsboN2?usp=sharing)
 
