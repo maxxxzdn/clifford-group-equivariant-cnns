@@ -4,7 +4,7 @@
   <a href="https://arxiv.org/abs/2402.14730"><img src="./figures/main_fig.png?raw=True" alt="Figure 1" width="400px"></a>
 </p>
 
-<h3>Clifford-Steerable Convolutional Neural Networks</h3>
+<h3>Clifford-Steerable Convolutional Neural Networks (ICML 2024)</h3>
 
 <b> Authors: </b>Maksim Zhdanov, David Ruhe, Maurice Weiler, and Ana Lucic, Johannes Brandstetter, Patrick Forré 
 
